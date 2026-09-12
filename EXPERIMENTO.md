@@ -126,10 +126,10 @@ Mientras tanto, `verificacion_r11.py` funciona como control: cualquier corrida p
 ## Archivos
 
 ```
-experimento/system_prompt_v3.md     contrato v3, única diferencia con v2: R12
+prompts/system_prompt.md            contrato v3 vigente (única diferencia con v2: R12)
 experimento/run_v1_corte3008.md     v1 sobre la entrada de 182 filas
-experimento/run_v3_A.md             v3, primera corrida aislada
-experimento/run_v3_B.md             v3, segunda corrida aislada
+corridas/run_v3_A.md                v3, primera corrida aislada
+corridas/run_v3_B.md                v3, segunda corrida aislada
 experimento/run_v3_sonnet.md        v3 sobre Claude Sonnet 5
 experimento/run_v3_haiku.md         v3 sobre Claude Haiku 4.5
 experimento/ids_v1.txt              identificadores de cada corrida,
