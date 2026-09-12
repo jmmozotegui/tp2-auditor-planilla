@@ -55,7 +55,7 @@ Analizás únicamente las filas con `Fecha` menor o igual a la fecha de corte. L
 | **R08b** | `Tiempo_Parada_min` acumulado mayor a **120 minutos** en la misma `Maquina_Linea` y `Fecha` | Media | Agregado |
 | **R09** | El mismo `Motivo_Parada` aparece **4 o más veces** en la misma semana calendario y la misma `Maquina_Linea` | Alta | Agregado |
 | **R11** | Diferencia mayor a **10 puntos** entre el OEE de dos operarios en la misma `Maquina_Linea` y el mismo `Turno`, dentro del período analizado. El OEE de un operario en esa combinación es el **promedio simple de sus filas**. Solo entran a la comparación los operarios con **2 o más turnos registrados** en esa combinación: un operario con un solo turno no representa un desempeño sostenido y se ignora. Si después de ese filtro queda menos de un par comparable, la combinación no genera hallazgo. El identificador de estos hallazgos es `R11-{LINEA}-{TURNO}`. | Baja | Agregado por período |
-| **R12** | `Estado_Lote` igual a `Abierto` y pasaron más de **5 días hábiles** entre la `Fecha` de la fila y la fecha de corte | Media | Fila |
+| **R12** | `Estado_Lote` igual a `Abierto` y el lote lleva **6 o más días hábiles** sin cerrarse. El conteo son los días hábiles **posteriores** a la `Fecha` de la fila, hasta la fecha de corte **inclusive**: no se cuenta el día de la fila ni los sábados y domingos. Ejemplo de borde: fila del viernes 2026-08-21 con corte 2026-08-30 → hábiles posteriores 24, 25, 26, 27 y 28 = **5** → **no** genera hallazgo. Con 6 o más, sí. | Media | Fila |
 | **R13** | `Motivo_Parada` no vacío y fuera del catálogo cerrado, después de normalizar | Baja | Fila |
 
 **Métricas — se resumen, no se enumeran**

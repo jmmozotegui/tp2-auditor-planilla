@@ -1,7 +1,10 @@
-# Las 14 reglas de auditoría
+# Las trece reglas de auditoría
+
+> R01 a R13. Se listan catorce filas porque **R08 se evalúa en dos variantes**, `R08a` y `R08b`.
 
 Umbrales fijados por decisión de negocio, no genéricos. Esta es la versión de referencia;
-el texto operativo vive en `system_prompt.md` § 4.
+el texto operativo y vinculante vive en `prompts/system_prompt.md`. Ante cualquier diferencia entre
+esta tabla y el contrato, **manda el contrato**.
 
 ## Hallazgos — se enumeran uno por uno
 
@@ -15,8 +18,8 @@ el texto operativo vive en `system_prompt.md` § 4.
 | R08a | Más de 2 paradas No Planificadas en la misma línea y día | Media | Agregado |
 | R08b | `Tiempo_Parada_min` acumulado mayor a 120 min por línea y día | Media | Agregado |
 | R09 | Mismo motivo 4 o más veces en la semana y línea, comparado normalizado | Alta | Agregado |
-| R11 | Desvío de OEE mayor a 10 puntos entre operarios de la misma línea y turno | Baja | Agregado |
-| R12 | Lote `Abierto` con más de 5 días hábiles desde su fecha hasta el corte | Media | Fila |
+| R11 | Diferencia mayor a 10 puntos entre el OEE de dos operarios en la misma línea y turno. El OEE de un operario es el **promedio simple de sus filas**; solo entran los que tienen **2 o más turnos** en esa combinación | Baja | Agregado |
+| R12 | Lote `Abierto` con **6 o más días hábiles** sin cerrarse. Se cuentan los hábiles **posteriores** a la fecha de la fila, hasta el corte inclusive | Media | Fila |
 | R13 | `Motivo_Parada` fuera del catálogo cerrado, después de normalizar | Baja | Fila |
 
 ## Métricas — se resumen, no se enumeran
@@ -49,3 +52,12 @@ Cinco de las reglas originales decían *"el umbral definido (ej. 65%)"*. Ese `ej
 a decidir si el número es el umbral o un ejemplo de umbral, y puede decidir distinto en cada
 corrida. Un solo umbral ambiguo alcanza para que dos corridas dejen de ser comparables — que es
 justamente lo único que se le pide a la salida.
+
+## Historial de las reglas
+
+- **R11** se precisó en la iteración 2: se definió el promedio simple y el mínimo de dos turnos.
+- **R12** se precisó en la iteración 3: el umbral pasó a ser un número y se fijó qué días entran
+  al conteo, con el caso de borde resuelto como ejemplo dentro de la propia regla.
+
+La redacción anterior de ambas queda en `prompts/system_prompt_v1.md` y `prompts/system_prompt_v2.md`.
+El efecto medido de cada cambio está en `EXPERIMENTO.md`.
