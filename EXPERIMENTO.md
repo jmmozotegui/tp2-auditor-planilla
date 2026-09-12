@@ -96,6 +96,25 @@ Tres cambios de fondo: el umbral pasa de una comparación ambigua a un número, 
 
 Los 84 identificadores coinciden uno a uno. Y los 6 de R11 coinciden con el oráculo.
 
+
+## Portabilidad entre modelos
+
+Después de cerrar la iteración 3 se agregó una comprobación que el experimento original no contemplaba: **si el contrato es una especificación de verdad, motores distintos deberían producir la misma salida.**
+
+Se ejecutó el contrato v3 sobre la misma planilla y la misma fecha de corte en tres modelos, cada uno en sesión aislada:
+
+| Corrida | Modelo | Hallazgos | R11 |
+|---|---|---:|---:|
+| `run_v3_A`, `run_v3_B` | Claude Opus 5 | 84 | 6 |
+| `run_v3_sonnet` | Claude Sonnet 5 | 84 | 6 |
+| `run_v3_haiku` | Claude Haiku 4.5 | 84 | 6 |
+
+**Los 84 identificadores coinciden uno a uno entre los tres modelos.** Diferencia simétrica cero para cualquier par. Y los 6 hallazgos de R11 coinciden con el oráculo determinístico.
+
+Eso responde una pregunta que quedaba implícita: la lógica de auditoría vive en el contrato, no en el modelo. Si dependiera del motor, tres motores distintos habrían dado tres respuestas distintas.
+
+La consecuencia económica está en `ANALISIS_ECONOMICO.md`: si el modelo más chico entrega el mismo resultado, corresponde usar el más chico.
+
 ## Qué queda abierto
 
 El hallazgo 3 **no está resuelto**. R12 quedó blindada con un borde explícito, pero la inestabilidad de R11 entre corridas es un problema de otra naturaleza: no se arregla redactando mejor, porque la redacción ya era correcta.
@@ -111,10 +130,14 @@ experimento/system_prompt_v3.md     contrato v3, única diferencia con v2: R12
 experimento/run_v1_corte3008.md     v1 sobre la entrada de 182 filas
 experimento/run_v3_A.md             v3, primera corrida aislada
 experimento/run_v3_B.md             v3, segunda corrida aislada
+experimento/run_v3_sonnet.md        v3 sobre Claude Sonnet 5
+experimento/run_v3_haiku.md         v3 sobre Claude Haiku 4.5
 experimento/ids_v1.txt              identificadores de cada corrida,
 experimento/ids_v2.txt                para reproducir las diferencias
 experimento/ids_v3_A.txt              de conjuntos con comm o diff
 experimento/ids_v3_B.txt
+experimento/ids_v3_sonnet.txt
+experimento/ids_v3_haiku.txt
 experimento/verificacion_r11.py     oráculo determinístico de R11
 ```
 
@@ -123,5 +146,5 @@ Reproducir la comparación:
 ```bash
 comm -13 ids_v3_A.txt ids_v2.txt      # hallazgos que v3 ya no reporta
 diff ids_v3_A.txt ids_v3_B.txt        # repetibilidad de v3: sin salida
-python3 verificacion_r11.py planilla_produccion_mes.csv
+python3 experimento/verificacion_r11.py planilla_produccion_mes.csv   # desde la raíz del repo
 ```
