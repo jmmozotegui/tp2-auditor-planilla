@@ -86,7 +86,7 @@ Contrastadas contra él:
 |---|---:|---|
 | `run_v1_corte3008` | 9 | no |
 | **`run_2.md`, publicada en la Entrega 2** | **9** | **no** |
-| Corrida automática del 2026-09-07 | 6 | sí |
+| Re-ejecución de v2 (`run_3`, 2026-09-12) | 6 | sí |
 | `run_v3_A`, `run_v3_B` | 6 | sí |
 
 **La corrida `run_2.md` que forma parte de la Entrega 2 reporta tres hallazgos que no existen.** Sus diferencias reales de OEE son 9,63 · 6,97 y 8,43 — las tres por debajo del umbral de 10.
@@ -94,6 +94,24 @@ Contrastadas contra él:
 Y el mismo contrato v2 dio 9 en una corrida y 6 en otra, sin que cambiara una palabra. Eso reubica el problema: **no era la redacción, era la repetibilidad**. Una regla agregada con umbral admite resultados distintos entre corridas cuando el conteo se hace leyendo en vez de calculando.
 
 Se deja documentado en vez de corregir la corrida vieja. Editar a mano una salida del agente la convertiría en algo que el contrato no produce, y la evidencia dejaría de ser evidencia.
+
+## La corrida que no era una corrida
+
+Al auditar el repositorio antes de entregar apareció algo que no esperábamos.
+
+`run_3.md` se presentaba en la Entrega 2 como la segunda ejecución de una prueba de repetibilidad: dos corridas del mismo contrato sobre la misma planilla, 87 identificadores idénticos, diferencia simétrica cero. Fue lo que la devolución destacó.
+
+El archivo era **byte a byte idéntico a `run_2.md` salvo la hora**. Mismo tamaño, 73.630 bytes, y `diff` devuelve una sola línea distinta. Las 87 descripciones, evidencias y acciones —texto libre generado por el modelo— coincidían palabra por palabra.
+
+Dos ejecuciones independientes no producen eso. La comparación que sí lo es, `run_v3_A` contra `run_v3_B`, tiene los mismos 84 identificadores pero difiere en más de mil líneas de prosa. Así se ve la repetibilidad de verdad.
+
+**Decisión.** Se reemplazó `run_3.md` por una re-ejecución real de v2, hecha el 2026-09-12 en sesión aislada, con el mismo contrato, la misma planilla y la misma fecha de corte.
+
+**Y el resultado desmiente lo que se había afirmado.** La corrida nueva da 87 hallazgos —el mismo total— pero **seis identificadores distintos**: tres de R11 que estaban en `run_2` no aparecen, y tres de R12 que no estaban sí aparecen. El contrato v2 nunca fue repetible; el total coincidente lo hacía parecer.
+
+Eso convirtió un problema en el hallazgo más útil del trabajo, y está desarrollado en `EXPERIMENTO.md`: **comparar totales oculta lo que comparar conjuntos revela.** Es el argumento entero a favor de los identificadores determinísticos, y apareció al intentar desarmar una afirmación propia que no se sostenía.
+
+No se corrigió en silencio ni se borró el rastro. La afirmación vieja era incorrecta y se dice por qué.
 
 ## Decisión de alcance 1 — no se fabrican fallas
 

@@ -11,7 +11,9 @@ Al ir a responderlo apareció un problema de diseño en la comparación que ya e
 | Corrida publicada | Contrato | Fecha de corte | Filas | Hallazgos |
 |---|---|---|---:|---:|
 | `run_1` | v1 | 2026-08-19 | 117 | 41 |
-| `run_2` y `run_3` | v2 | 2026-08-30 | 182 | 87 |
+| `run_2` | v2 | 2026-08-30 | 182 | 87 |
+
+> **Sobre `run_3`.** La Entrega 2 presentaba una tercera corrida como prueba de repetibilidad de v2. Al auditar el repositorio se comprobó que ese archivo era **byte a byte idéntico a `run_2` salvo la hora**: las 87 descripciones, evidencias y acciones en texto libre coincidían palabra por palabra, algo que dos ejecuciones independientes no producen. No tenía valor probatorio, así que se reemplazó por una re-ejecución real de v2, hecha el 2026-09-12 en sesión aislada. El resultado está en el Hallazgo 3 y **desmiente** la repetibilidad que se había afirmado. Se documenta en vez de corregirse en silencio.
 
 Entre 41 y 87 **cambiaron dos cosas a la vez**: la redacción de R11 y el tamaño de la entrada. La diferencia no es atribuible al contrato. Es un experimento con la variable confundida, y por eso la pregunta del corrector no tenía respuesta con lo que había.
 
@@ -61,9 +63,28 @@ Contrastadas contra el oráculo, las corridas `v1` y `run_2` reportan tres halla
 
 ### Hallazgo 3 — el problema real es de repetibilidad, no de redacción
 
-El mismo contrato v2, sobre la misma planilla, produjo 9 hallazgos de R11 en `run_2` y 6 en la corrida automática del 2026-09-07. Sin cambiar una palabra del contrato.
+La comprobación más directa llegó al final. Se ejecutó el contrato **v2 otra vez**, en sesión nueva y aislada, sobre la misma planilla y la misma fecha de corte que `run_2`. Sin cambiar una palabra del contrato.
 
-Eso reubica el problema. No estaba en cómo estaba redactada R11, sino en que **una regla agregada con umbral admite resultados distintos entre corridas** cuando el conteo se hace por lectura y no por cálculo.
+| | `run_2` (2026-08-27) | `run_3` (2026-09-12) |
+|---|---:|---:|
+| Total | 87 | 87 |
+| R11 | **9** | **6** |
+| R12 | **31** | **34** |
+| **Diferencia simétrica** | | **6 identificadores** |
+
+**Los dos totales coinciden y las corridas son distintas.** Tres identificadores entran y tres salen:
+
+| Solo en `run_2` | Solo en `run_3` |
+|---|---|
+| `R11-EXT-01-Mañana` | `R12-EXT-02-2026-08-21-Noche` |
+| `R11-EXT-01-Tarde` | `R12-EXT-02-2026-08-21-Tarde` |
+| `R11-TRZ-01-Mañana` | `R12-TRZ-01-2026-08-21-Noche` |
+
+Ése es el argumento entero a favor de los identificadores determinísticos: **comparando totales, las dos corridas parecen idénticas. Comparando conjuntos, difieren en seis hallazgos.** Un informe que solo dijera "87 hallazgos" habría ocultado el problema por completo.
+
+Y las seis diferencias caen exactamente en los dos puntos ambiguos del contrato v2: el conteo de R11 y el borde de R12. No es azar: es dónde la regla dejaba lugar a decidir.
+
+Conclusión: el problema no estaba en cómo estaba redactada R11. Estaba en que **una regla agregada con umbral admite resultados distintos entre corridas** cuando el conteo se hace por lectura y no por cálculo.
 
 ### Hallazgo 4 — el borde de R12
 
@@ -109,7 +130,9 @@ Se ejecutó el contrato v3 sobre la misma planilla y la misma fecha de corte en 
 | `run_v3_sonnet` | Claude Sonnet 5 | 84 | 6 |
 | `run_v3_haiku` | Claude Haiku 4.5 | 84 | 6 |
 
-**Los 84 identificadores coinciden uno a uno entre los tres modelos.** Diferencia simétrica cero para cualquier par. Y los 6 hallazgos de R11 coinciden con el oráculo determinístico.
+**Los 84 identificadores de hallazgo coinciden uno a uno entre los tres modelos.** Diferencia simétrica cero para cualquier par, y los 6 de R11 coinciden con el oráculo.
+
+Lo que coincide es el **conjunto de hallazgos**, que es lo que el contrato define y lo que se compara. No coincide todo lo demás: el bloque `reglas_no_evaluables` trae 4, 3 y 2 entradas según la corrida, porque el contrato no fija cuántas declarar ni con qué granularidad. Es una imprecisión del contrato, no una discrepancia de criterio — las tres corridas identifican las mismas dos combinaciones sin par comparable, TRZ-02/Tarde y TRZ-03/Noche. Precisar ese bloque queda pendiente.
 
 Eso responde una pregunta que quedaba implícita: la lógica de auditoría vive en el contrato, no en el modelo. Si dependiera del motor, tres motores distintos habrían dado tres respuestas distintas.
 
@@ -130,6 +153,9 @@ prompts/system_prompt.md            contrato v3 vigente (única diferencia con v
 experimento/run_v1_corte3008.md     v1 sobre la entrada de 182 filas
 corridas/run_v3_A.md                v3, primera corrida aislada
 corridas/run_v3_B.md                v3, segunda corrida aislada
+corridas/run_3.md                   v2 re-ejecutada, prueba de repetibilidad
+experimento/ids_v2_nueva.txt        identificadores de esa re-ejecución
+experimento/user_prompt_v1_corte3008.md   el user prompt exacto de la corrida v1
 experimento/run_v3_sonnet.md        v3 sobre Claude Sonnet 5
 experimento/run_v3_haiku.md         v3 sobre Claude Haiku 4.5
 experimento/ids_v1.txt              identificadores de cada corrida,

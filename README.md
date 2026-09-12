@@ -1,6 +1,6 @@
 # Auditor de planilla de producción
 
-Agente que audita la planilla mensual de una planta contra trece reglas y devuelve un informe estructurado de hallazgos, con evidencia y acción sugerida para cada uno.
+Agente que audita la planilla mensual de una planta contra trece reglas (R01 a R13) y devuelve un informe estructurado de hallazgos, con evidencia y acción sugerida para cada uno.
 
 No es un chatbot ni un prompt suelto: es un contrato de prompts versionado, con una entrada definida, una salida con esquema, corridas registradas y un punto de supervisión humana antes de que un hallazgo se convierta en un reclamo.
 
@@ -32,6 +32,8 @@ Las seis piezas exigidas están en el contrato: **rol**, **contexto**, **tarea**
 
 ### Las trece reglas
 
+Se listan catorce filas porque **R08 se evalúa en dos variantes**, `R08a` y `R08b`.
+
 | | Qué detecta | Severidad | Alcance |
 |---|---|---|---|
 | R01 | Horarios imposibles | Alta | Fila |
@@ -53,7 +55,7 @@ Las seis piezas exigidas están en el contrato: **rol**, **contexto**, **tarea**
 
 La entrada es un archivo real: `planilla_produccion_mes.csv`, la exportación de la planilla del mes. El agente la lee entera, incluidas las líneas, operarios o productos que el contrato no menciona en su contexto.
 
-La ejecución es una **tarea programada**: corre sola los lunes a la mañana, toma la última versión de la planilla y escribe el informe. No hay un paso manual en el medio. La corrida del 2026-09-07 se ejecutó sin supervisión y detectó filas cargadas en el ínterin, incluidas dos con motivos de parada fuera del catálogo.
+La ejecución es una **tarea programada**: corre sola los lunes a la mañana, toma la última versión de la planilla y escribe el informe. No hay un paso manual en el medio. Una corrida no supervisada detectó filas cargadas en el ínterin, incluidas dos con motivos de parada fuera del catálogo, que R13 reportó correctamente.
 
 ## La salida
 
@@ -85,9 +87,11 @@ No es L3 por una razón concreta: está probado que el agente puede equivocarse.
 
 Cada corrida declara su fecha, la fecha de corte que usó, cuántas filas analizó y cuántas ignoró.
 
-`run_2` y `run_3` fueron la prueba de repetibilidad de la Entrega 2: 87 identificadores idénticos, diferencia simétrica cero. `run_v3_A` y `run_v3_B` son la misma prueba sobre el contrato final: 84 identificadores idénticos.
+`run_2` y `run_3` son dos ejecuciones del contrato v2 sobre la misma entrada. Dan el mismo total, 87, y **difieren en seis identificadores**: el contrato v2 no era repetible, y el total coincidente lo disimulaba. `run_v3_A` y `run_v3_B` son la misma prueba sobre el contrato final: 84 identificadores idénticos, diferencia simétrica cero.
 
 **`run_2.md` contiene tres hallazgos que no corresponden.** Se descubrió construyendo el oráculo de R11 y está documentado en `EXPERIMENTO.md`. La corrida se conserva sin editar: corregirla a mano la convertiría en algo que el contrato no produce.
+
+`run_3.md` es una re-ejecución del 2026-09-12. Reemplaza a un archivo que la Entrega 2 presentaba como corrida independiente y que resultó ser una copia de `run_2`. El detalle está en `DECISIONES.md`.
 
 ## Las tres iteraciones
 
@@ -127,6 +131,8 @@ Se declara en vez de omitirse:
 - El informe no registra con qué modelo corrió.
 - El oráculo cubre solo R11.
 - Falta definir el borde de la semana calendario para cortes en fin de semana.
+- El bloque `reglas_no_evaluables` no tiene granularidad definida: distintas corridas declaran 2, 3 o 4 entradas para las mismas dos situaciones.
+- El `.xlsx` quedó dos filas atrás del CSV y no se regeneró.
 
 ## Estructura
 
@@ -156,7 +162,8 @@ experimento/
    verificacion_r11.py         oráculo determinístico de R11
 
 planilla_produccion_mes.csv    la entrada
-Planilla_Produccion.xlsx       la misma planilla en formato de trabajo
+Planilla_Produccion.xlsx       instantánea anterior de la planilla (180 filas);
+                               la entrada vigente de las corridas es el CSV (182 filas)
 ```
 
 ## Reproducir una corrida

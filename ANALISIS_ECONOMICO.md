@@ -100,13 +100,15 @@ El mismo contrato v3, sobre la misma planilla de 182 filas y la misma fecha de c
 | `run_v3_sonnet` | Claude Sonnet 5 | 84 | 6 | sí |
 | `run_v3_haiku` | Claude Haiku 4.5 | 84 | 6 | sí |
 
-**Los 84 identificadores son idénticos en los tres.** Diferencia simétrica cero entre cualquier par. Y los 6 hallazgos de R11 coinciden uno a uno con `experimento/verificacion_r11.py`, el cálculo determinístico que no usa modelo.
+**Los 84 identificadores de hallazgo son idénticos en los tres.** Diferencia simétrica cero entre cualquier par, y los 6 de R11 coinciden uno a uno con `experimento/verificacion_r11.py`, el cálculo determinístico que no usa modelo.
+
+La coincidencia es del **conjunto de hallazgos**, que es lo que el contrato define y lo que se compara entre corridas. No alcanza a todo el informe: el bloque `reglas_no_evaluables` trae 4, 3 y 2 entradas según el modelo, porque el contrato no especifica cuántas declarar ni con qué granularidad. Los tres identifican las mismas dos combinaciones sin par comparable; lo que varía es cómo las agrupan. Es una imprecisión del contrato que queda pendiente, y se declara acá para no sobredecir el resultado.
 
 Dos conclusiones:
 
 1. **El contrato es portable.** Que tres motores distintos produzcan la misma salida es la prueba de que la lógica vive en la especificación. Si dependiera del modelo, no sería un contrato.
 
-2. **Corresponde el más chico.** Haiku 4.5 entrega el mismo resultado que Opus 5, en menos tiempo, consumiendo menos cupo del plan. Y si el sistema se productizara, a un quinto del costo.
+2. **Corresponde el más chico.** Haiku 4.5 entrega el mismo conjunto de hallazgos que Opus 5, en menos tiempo, consumiendo menos cupo del plan. Y si el sistema se productizara, a un quinto del costo.
 
 **Modelo elegido: Claude Haiku 4.5.**
 
